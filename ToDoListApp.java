@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -15,6 +16,7 @@ public class ToDoListApp {
     private static ArrayList<String> tasks = new ArrayList<>();
 
     public static void main(String[] args) {
+        loadTasks(); //Loads the file containing tasks saved since the program was last used
         Scanner scanner = new Scanner(System.in); // Scanner for user input
         int choice; // Stores user menu choice
 
@@ -37,7 +39,10 @@ public class ToDoListApp {
                 case 1 -> addTask(scanner); // Call method to add a task
                 case 2 -> viewTasks(); // Call method to display tasks
                 case 3 -> removeTask(scanner); // Call method to remove a task
-                case 4 -> System.out.println("Exiting..."); // Exit message
+                case 4 -> {
+                    saveTasks();
+                    System.out.println("Exiting...");  // Exit message
+                }
                 default -> System.out.println("Invalid choice. Try again."); // Handle invalid input
             }
         } while (choice != 4); // Loop until user selects option 4 (Exit)
@@ -47,6 +52,7 @@ public class ToDoListApp {
 
     /**
      * Method to add a new task to the list.
+     *
      * @param scanner Scanner object for user input.
      */
     private static void addTask(Scanner scanner) {
@@ -73,6 +79,7 @@ public class ToDoListApp {
 
     /**
      * Method to remove a task from the list.
+     *
      * @param scanner Scanner object for user input.
      */
     private static void removeTask(Scanner scanner) {
@@ -88,6 +95,35 @@ public class ToDoListApp {
             System.out.println("Task removed."); // Confirmation message
         } else {
             System.out.println("Invalid task number."); // Handle invalid input
+        }
+    }
+    private static void saveTasks(){
+        try {
+            FileWriter writer = new FileWriter("taskSaveFile.txt");
+            for (int i = 0; i < tasks.size(); i++) {
+                writer.append(tasks.get(i) + "\n");
+            }
+            writer.close();
+        }catch (IOException e){
+            System.err.println("There was an error writing to the file");
+            System.exit(1);
+        }
+
+    }
+    private static void loadTasks(){
+        File save = new File("taskSaveFile.txt");
+        if(save.exists()) {
+            try {
+                Scanner reader = new Scanner(save);
+                String input;
+                while(reader.hasNextLine()){
+                    input = reader.nextLine();
+                    tasks.add(input);
+                }
+                reader.close();
+            } catch (FileNotFoundException e){
+                System.out.println("Could not find a previous save file");
+            }
         }
     }
 }
